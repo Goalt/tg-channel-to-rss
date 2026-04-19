@@ -3,7 +3,7 @@ name: Docker build and e2e
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
 
 jobs:
