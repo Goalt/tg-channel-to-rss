@@ -19,6 +19,7 @@ HEADERS = {
 TIMEOUT = 30
 URL_RE = re.compile(r'(https?://[^\s<>"\']+)')
 BG_URL_RE = re.compile(r"background-image:\s*url\(['\"]?(?P<u>[^'\")]+)['\"]?\)", re.IGNORECASE)
+CHANNEL_RE = re.compile(r"^[A-Za-z0-9_]{5,}$")
 
 
 def autolink_plain(text: str) -> str:
@@ -73,6 +74,8 @@ def handle_feed_request(channel_name: str, key: Optional[str]):
         return 401, "Unauthorized", headers
     if not channel_name:
         return 400, "Missing channel_name", headers
+    if not CHANNEL_RE.fullmatch(channel_name):
+        return 400, "Invalid channel_name", headers
 
     try:
         rss_xml = get_rss_feed(channel_name)
@@ -328,7 +331,10 @@ class RssRequestHandler(BaseHTTPRequestHandler):
 def run_server():
     """Run HTTP server for Docker deployment."""
     host = os.environ.get("HOST", "0.0.0.0")
-    port = int(os.environ.get("PORT", "8000"))
+    try:
+        port = int(os.environ.get("PORT", "8000"))
+    except ValueError as ex:
+        raise ValueError("Invalid PORT value: must be an integer") from ex
     server = ThreadingHTTPServer((host, port), RssRequestHandler)
     print(f"Serving tg-channel-to-rss on http://{host}:{port}")
     server.serve_forever()

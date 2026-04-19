@@ -1,5 +1,5 @@
 # tg-channel-to-rss
-Dockerized service for converting a **public Telegram channel** into an **RSS feed**.
+Dockerized service (with AWS Lambda-compatible handler) for converting a **public Telegram channel** into an **RSS feed**.
 
 ## How it works
 1. The service receives HTTP requests:
