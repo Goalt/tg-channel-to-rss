@@ -14,6 +14,7 @@ jobs:
     env:
       SERVICE_URL: http://127.0.0.1:8000
       TEST_API_KEY: test-key
+      TEST_CHANNEL_NAME: abcde
       MAX_RETRIES: "30"
 
     steps:
@@ -33,8 +34,8 @@ jobs:
 
       - name: Wait for service
         run: |
-          for _ in $(seq 1 "$MAX_RETRIES"); do
-            status="$(curl -s -o /dev/null -w "%{http_code}" "$SERVICE_URL/feed/abcde?key=wrong")"
+          for i in $(seq 1 "$MAX_RETRIES"); do
+            status="$(curl -s -o /dev/null -w "%{http_code}" "$SERVICE_URL/feed/$TEST_CHANNEL_NAME?key=wrong")"
             if [ "$status" = "401" ]; then
               exit 0
             fi
@@ -46,7 +47,7 @@ jobs:
 
       - name: E2E test: unauthorized request
         run: |
-          status="$(curl -s -o /tmp/body-unauthorized.txt -w "%{http_code}" "$SERVICE_URL/feed/abcde?key=wrong")"
+          status="$(curl -s -o /tmp/body-unauthorized.txt -w "%{http_code}" "$SERVICE_URL/feed/$TEST_CHANNEL_NAME?key=wrong")"
           test "$status" = "401"
           grep -q "Unauthorized" /tmp/body-unauthorized.txt
 
