@@ -11,6 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      SERVICE_URL: http://127.0.0.1:8000
+      TEST_API_KEY: test-key
+      WAIT_SECONDS: "30"
 
     steps:
       - name: Checkout
@@ -24,14 +28,13 @@ jobs:
           docker run -d --rm \
             --name tg-channel-to-rss-ci \
             -p 8000:8000 \
-            -e API_KEY=test-key \
+            -e API_KEY="$TEST_API_KEY" \
             tg-channel-to-rss:ci
 
       - name: Wait for service
         run: |
-          wait_seconds=30
-          for _ in $(seq 1 "$wait_seconds"); do
-            status="$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:8000/feed/abcde?key=wrong")"
+          for _ in $(seq 1 "$WAIT_SECONDS"); do
+            status="$(curl -s -o /dev/null -w "%{http_code}" "$SERVICE_URL/feed/abcde?key=wrong")"
             if [ "$status" = "401" ]; then
               exit 0
             fi
@@ -43,13 +46,13 @@ jobs:
 
       - name: E2E test: unauthorized request
         run: |
-          status="$(curl -s -o /tmp/body-unauthorized.txt -w "%{http_code}" "http://127.0.0.1:8000/feed/abcde?key=wrong")"
+          status="$(curl -s -o /tmp/body-unauthorized.txt -w "%{http_code}" "$SERVICE_URL/feed/abcde?key=wrong")"
           test "$status" = "401"
           grep -q "Unauthorized" /tmp/body-unauthorized.txt
 
       - name: E2E test: invalid channel validation
         run: |
-          status="$(curl -s -o /tmp/body-invalid-channel.txt -w "%{http_code}" "http://127.0.0.1:8000/feed/ab?key=test-key")"
+          status="$(curl -s -o /tmp/body-invalid-channel.txt -w "%{http_code}" "$SERVICE_URL/feed/ab?key=$TEST_API_KEY")"
           test "$status" = "400"
           grep -q "Invalid channel_name" /tmp/body-invalid-channel.txt
 
