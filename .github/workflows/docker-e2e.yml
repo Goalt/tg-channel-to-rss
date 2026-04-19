@@ -14,7 +14,9 @@ jobs:
     env:
       SERVICE_URL: http://127.0.0.1:8000
       TEST_API_KEY: test-key
-      TEST_CHANNEL_NAME: abcde
+      TEST_VALID_CHANNEL_NAME: testch1
+      TEST_INVALID_CHANNEL_NAME: ab
+      TEST_WRONG_API_KEY: wrong-key
       MAX_RETRIES: "30"
 
     steps:
@@ -35,7 +37,7 @@ jobs:
       - name: Wait for service
         run: |
           for i in $(seq 1 "$MAX_RETRIES"); do
-            status="$(curl -s -o /dev/null -w "%{http_code}" "$SERVICE_URL/feed/$TEST_CHANNEL_NAME?key=wrong")"
+            status="$(curl -s -o /dev/null -w "%{http_code}" "$SERVICE_URL/feed/$TEST_VALID_CHANNEL_NAME?key=$TEST_WRONG_API_KEY")"
             if [ "$status" = "401" ]; then
               exit 0
             fi
@@ -47,13 +49,13 @@ jobs:
 
       - name: E2E test: unauthorized request
         run: |
-          status="$(curl -s -o /tmp/body-unauthorized.txt -w "%{http_code}" "$SERVICE_URL/feed/$TEST_CHANNEL_NAME?key=wrong")"
+          status="$(curl -s -o /tmp/body-unauthorized.txt -w "%{http_code}" "$SERVICE_URL/feed/$TEST_VALID_CHANNEL_NAME?key=$TEST_WRONG_API_KEY")"
           test "$status" = "401"
           grep -q "Unauthorized" /tmp/body-unauthorized.txt
 
       - name: E2E test: invalid channel validation
         run: |
-          status="$(curl -s -o /tmp/body-invalid-channel.txt -w "%{http_code}" "$SERVICE_URL/feed/ab?key=$TEST_API_KEY")"
+          status="$(curl -s -o /tmp/body-invalid-channel.txt -w "%{http_code}" "$SERVICE_URL/feed/$TEST_INVALID_CHANNEL_NAME?key=$TEST_API_KEY")"
           test "$status" = "400"
           grep -q "Invalid channel_name" /tmp/body-invalid-channel.txt
 
