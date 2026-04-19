@@ -38,6 +38,7 @@ jobs:
         run: |
           attempt=0
           while [ "$attempt" -lt "$MAX_RETRIES" ]; do
+            # API key is intentionally wrong here: 401 confirms HTTP server is alive and handling requests.
             status="$(curl -s -o /dev/null -w "%{http_code}" "$SERVICE_URL/feed/$TEST_VALID_CHANNEL_NAME?key=$TEST_WRONG_API_KEY")"
             if [ "$status" = "401" ]; then
               exit 0
@@ -48,6 +49,10 @@ jobs:
           echo "Service did not start in time"
           docker logs tg-channel-to-rss-ci || true
           exit 1
+
+      - name: Dump container logs on failure
+        if: failure()
+        run: docker logs tg-channel-to-rss-ci || true
 
       - name: E2E test: unauthorized request
         run: |
