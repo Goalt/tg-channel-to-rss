@@ -1,0 +1,55 @@
+name: Docker build and e2e
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  docker-build-and-e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t tg-channel-to-rss:ci .
+
+      - name: Start container
+        run: |
+          docker run -d --rm \
+            --name tg-channel-to-rss-ci \
+            -p 8000:8000 \
+            -e API_KEY=test-key \
+            tg-channel-to-rss:ci
+
+      - name: Wait for service
+        run: |
+          for i in {1..30}; do
+            status="$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:8000/feed/abcde?key=wrong")"
+            if [ "$status" = "401" ] || [ "$status" = "400" ]; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Service did not start in time"
+          docker logs tg-channel-to-rss-ci || true
+          exit 1
+
+      - name: E2E test: unauthorized request
+        run: |
+          status="$(curl -s -o /tmp/body.txt -w "%{http_code}" "http://127.0.0.1:8000/feed/abcde?key=wrong")"
+          test "$status" = "401"
+          grep -q "Unauthorized" /tmp/body.txt
+
+      - name: E2E test: invalid channel validation
+        run: |
+          status="$(curl -s -o /tmp/body.txt -w "%{http_code}" "http://127.0.0.1:8000/feed/ab?key=test-key")"
+          test "$status" = "400"
+          grep -q "Invalid channel_name" /tmp/body.txt
+
+      - name: Stop container
+        if: always()
+        run: docker stop tg-channel-to-rss-ci
