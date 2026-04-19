@@ -73,6 +73,7 @@ jobs:
 
   docker-push-image:
     if: github.event_name == 'push'
+    needs: docker-build-and-e2e
     runs-on: ubuntu-latest
     permissions:
       contents: read
