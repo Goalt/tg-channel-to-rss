@@ -40,6 +40,7 @@ jobs:
         env:
           IMAGE_REPO: ghcr.io/${{ github.repository }}
         run: |
+          set -euo pipefail
           image_repo="$(echo "$IMAGE_REPO" | tr '[:upper:]' '[:lower:]')"
           docker tag tg-channel-to-rss:ci "$image_repo:latest"
           docker tag tg-channel-to-rss:ci "$image_repo:${GITHUB_SHA}"
