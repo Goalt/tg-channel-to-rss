@@ -19,6 +19,7 @@ HEADERS = {
 TIMEOUT = 30
 URL_RE = re.compile(r'(https?://[^\s<>"\']+)')
 BG_URL_RE = re.compile(r"background-image:\s*url\(['\"]?(?P<u>[^'\")]+)['\"]?\)", re.IGNORECASE)
+# Telegram public channel usernames are 5-32 chars: letters, numbers, underscores.
 CHANNEL_NAME_RE = re.compile(r"^[A-Za-z0-9_]{5,32}$")
 FEED_PATH_PREFIX = "/feed/"
 
@@ -70,7 +71,7 @@ def handle_feed_request(channel_name: str, key: Optional[str]):
 
     expected_key = os.environ.get("API_KEY", "")
     if not expected_key:
-        return 500, "API_KEY is not configured", headers
+        return 500, "Server configuration error: API_KEY environment variable not set", headers
     if key != expected_key:
         return 401, "Unauthorized", headers
     if not channel_name:
@@ -310,7 +311,7 @@ class RssRequestHandler(BaseHTTPRequestHandler):
             self._write_response(404, "Not Found", {"Content-Type": "text/plain; charset=UTF-8"})
             return
 
-        channel_name = unquote(parsed.path[len(FEED_PATH_PREFIX) :]).rstrip("/")
+        channel_name = unquote(parsed.path.removeprefix(FEED_PATH_PREFIX)).rstrip("/")
         key = parse_qs(parsed.query).get("key", [None])[0]
         status, body, headers = handle_feed_request(channel_name, key)
         self._write_response(status, body, headers)
