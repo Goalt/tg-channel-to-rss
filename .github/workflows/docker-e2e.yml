@@ -62,6 +62,7 @@ jobs:
           while [ "$attempt" -lt "$MAX_RETRIES" ]; do
             # API key is intentionally wrong here: 401 confirms HTTP server is alive and handling requests.
             status="$(curl -s -o /dev/null -w "%{http_code}" "$SERVICE_URL/feed/$TEST_VALID_CHANNEL_NAME?key=$TEST_WRONG_API_KEY" || true)"
+            status="${status:-000}"
             if [ "$status" = "401" ]; then
               exit 0
             fi
