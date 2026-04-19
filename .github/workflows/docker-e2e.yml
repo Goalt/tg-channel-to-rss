@@ -53,9 +53,9 @@ jobs:
 
       - name: "E2E test: no authorization required"
         run: |
-          status="$(curl -s -o /tmp/body-no-auth.txt -w "%{http_code}" "$SERVICE_URL/feed/$TEST_INVALID_CHANNEL_NAME")"
-          test "$status" = "400"
-          grep -q "Invalid channel_name" /tmp/body-no-auth.txt
+          status="$(curl -s -o /tmp/body-no-auth.txt -w "%{http_code}" "$SERVICE_URL/feed/$TEST_VALID_CHANNEL_NAME")"
+          test "$status" != "401"
+          ! grep -q "Unauthorized" /tmp/body-no-auth.txt
 
       - name: "E2E test: invalid channel validation"
         run: |
