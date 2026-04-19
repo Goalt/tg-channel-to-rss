@@ -58,4 +58,4 @@ jobs:
 
       - name: Stop container
         if: always()
-        run: docker stop tg-channel-to-rss-ci
+        run: docker stop tg-channel-to-rss-ci || true
