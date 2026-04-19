@@ -76,13 +76,13 @@ jobs:
         if: failure()
         run: docker logs tg-channel-to-rss-ci || true
 
-      - name: E2E test: unauthorized request
+      - name: "E2E test: unauthorized request"
         run: |
           status="$(curl -s -o /tmp/body-unauthorized.txt -w "%{http_code}" "$SERVICE_URL/feed/$TEST_VALID_CHANNEL_NAME?key=$TEST_WRONG_API_KEY")"
           test "$status" = "401"
           grep -q "Unauthorized" /tmp/body-unauthorized.txt
 
-      - name: E2E test: invalid channel validation
+      - name: "E2E test: invalid channel validation"
         run: |
           status="$(curl -s -o /tmp/body-invalid-channel.txt -w "%{http_code}" "$SERVICE_URL/feed/$TEST_INVALID_CHANNEL_NAME?key=$TEST_API_KEY")"
           test "$status" = "400"
