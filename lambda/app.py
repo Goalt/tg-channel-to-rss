@@ -335,7 +335,7 @@ def run_server() -> None:
     host = os.environ.get("HOST", "0.0.0.0")
     port_value = os.environ.get("PORT", "8000")
     if not port_value.isdigit():
-        raise ValueError("Invalid PORT value: must be an integer")
+        raise ValueError(f'Invalid PORT value "{port_value}": must be an integer')
     port = int(port_value)
     server = ThreadingHTTPServer((host, port), RssRequestHandler)
     print(f"Serving tg-channel-to-rss on http://{host}:{port}")

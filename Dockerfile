@@ -13,4 +13,4 @@ COPY lambda /app/lambda
 
 EXPOSE 8000
 
-CMD ["python", "/app/lambda/app.py"]
+CMD ["python", "-u", "/app/lambda/app.py"]
