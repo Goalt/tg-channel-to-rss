@@ -47,21 +47,23 @@ curl 'http://localhost:8000/feed/cool_telegram_channel'
 
 ## Notifier module
 
-In addition to the HTTP feed server, the project ships a standalone
-**notifier** that periodically collects the latest posts from a list of
-Telegram channels and forwards each new post to a list of webhooks.
+In addition to serving the JSON feed over HTTP, the server can periodically
+collect the latest posts from a list of Telegram channels and forward each
+new post to a list of webhooks. The notifier runs in-process alongside the
+HTTP server and is enabled automatically when `TG_CHANNELS` and `WEBHOOKS`
+are set.
 
-### Run locally
+### Run with notifier enabled
 ```bash
 TG_CHANNELS=channel_a,channel_b \
 WEBHOOKS=https://example.com/hook1,https://example.com/hook2 \
 POLL_INTERVAL=5m \
-go run ./cmd/notifier
+go run ./cmd/server
 ```
 
 ### Environment variables
-- `TG_CHANNELS` (required): comma-separated list of public Telegram channel names.
-- `WEBHOOKS` (required): comma-separated list of webhook URLs that will receive new posts.
+- `TG_CHANNELS` (optional): comma-separated list of public Telegram channel names. Required to enable the notifier.
+- `WEBHOOKS` (optional): comma-separated list of webhook URLs that will receive new posts. Required to enable the notifier.
 - `POLL_INTERVAL` (optional, default `5m`): polling interval as a Go duration (e.g. `30s`, `10m`, `1h`).
 
 On startup the notifier performs a seed pass that records currently
