@@ -20,6 +20,12 @@ func TestMatchesProxyRoute(t *testing.T) {
 	}
 }
 
+func TestPathSuffixNonMatchingRoute(t *testing.T) {
+	if got := pathSuffix("/other", "/proxy/hyperliquid"); got != "/" {
+		t.Fatalf("expected fallback suffix, got %q", got)
+	}
+}
+
 func TestNewAPIProxyForwardsAndInjectsAuthorization(t *testing.T) {
 	var gotPath string
 	var gotQuery string

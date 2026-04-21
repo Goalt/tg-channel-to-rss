@@ -37,7 +37,6 @@ func newAPIProxy(cfg apiProxyConfig) (http.Handler, error) {
 		req.Host = target.Host
 
 		req.URL.Path = joinURLPath(targetPath, pathSuffix(sourcePath, cfg.RoutePrefix))
-		req.URL.RawPath = req.URL.Path
 		if targetQuery == "" || sourceQuery == "" {
 			req.URL.RawQuery = targetQuery + sourceQuery
 		} else {
@@ -63,6 +62,10 @@ func matchesProxyRoute(path, routePrefix string) bool {
 }
 
 func pathSuffix(path, routePrefix string) string {
+	if !matchesProxyRoute(path, routePrefix) {
+		return "/"
+	}
+
 	suffix := strings.TrimPrefix(path, routePrefix)
 	if suffix == "" {
 		return "/"
