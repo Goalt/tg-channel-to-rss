@@ -48,7 +48,6 @@ func newAPIProxy(cfg apiProxyConfig) (http.Handler, error) {
 		if auth := strings.TrimSpace(cfg.Authorization); auth != "" {
 			req.Header.Set("Authorization", auth)
 		}
-		req.Header.Set("X-Forwarded-Host", req.Host)
 	}
 
 	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, err error) {
