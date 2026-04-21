@@ -26,6 +26,29 @@ func TestPathSuffixNonMatchingRoute(t *testing.T) {
 	}
 }
 
+func TestJoinURLPath(t *testing.T) {
+	cases := []struct {
+		name   string
+		base   string
+		suffix string
+		want   string
+	}{
+		{name: "both normalized", base: "/api", suffix: "/v1", want: "/api/v1"},
+		{name: "base with trailing slash", base: "/api/", suffix: "/v1", want: "/api/v1"},
+		{name: "suffix without leading slash", base: "/api", suffix: "v1", want: "/api/v1"},
+		{name: "root base and root suffix", base: "/", suffix: "/", want: "/"},
+		{name: "empty base and suffix", base: "", suffix: "", want: "/"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := joinURLPath(tc.base, tc.suffix); got != tc.want {
+				t.Fatalf("joinURLPath(%q, %q)=%q want %q", tc.base, tc.suffix, got, tc.want)
+			}
+		})
+	}
+}
+
 func TestNewAPIProxyForwardsAndInjectsAuthorization(t *testing.T) {
 	var gotPath string
 	var gotQuery string
