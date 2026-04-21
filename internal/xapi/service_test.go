@@ -67,4 +67,3 @@ func TestGetJSONFeedValidation(t *testing.T) {
 		t.Fatalf("expected username validation error")
 	}
 }
-
