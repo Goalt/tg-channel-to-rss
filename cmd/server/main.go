@@ -42,6 +42,15 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to initialize polymarket proxy: %v", err)
 	}
+	bybitProxy, err := newAPIProxy(apiProxyConfig{
+		RoutePrefix:   "/proxy/bybit",
+		TargetBaseURL: envOrDefault("BYBIT_API_BASE_URL", "https://api.bybit.com"),
+		Authorization: os.Getenv("BYBIT_AUTHORIZATION"),
+		Name:          "bybit",
+	})
+	if err != nil {
+		log.Fatalf("failed to initialize bybit proxy: %v", err)
+	}
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if matchesProxyRoute(r.URL.Path, "/proxy/hyperliquid") {
@@ -50,6 +59,10 @@ func main() {
 		}
 		if matchesProxyRoute(r.URL.Path, "/proxy/polymarket") {
 			polymarketProxy.ServeHTTP(w, r)
+			return
+		}
+		if matchesProxyRoute(r.URL.Path, "/proxy/bybit") {
+			bybitProxy.ServeHTTP(w, r)
 			return
 		}
 

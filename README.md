@@ -43,17 +43,19 @@ curl 'http://localhost:8000/feed/cool_telegram_channel'
 
 ## API proxy endpoints
 
-The service also exposes server-side HTTP proxies for Hyperliquid and
-Polymarket API calls:
+The service also exposes server-side HTTP proxies for Hyperliquid, Polymarket,
+and Bybit API calls:
 
 - `/proxy/hyperliquid/...` → forwards to `HYPERLIQUID_API_BASE_URL`
 - `/proxy/polymarket/...` → forwards to `POLYMARKET_API_BASE_URL`
+- `/proxy/bybit/...` → forwards to `BYBIT_API_BASE_URL`
 
 Examples:
 
 ```bash
 curl 'http://localhost:8000/proxy/hyperliquid/info'
 curl 'http://localhost:8000/proxy/polymarket/markets'
+curl 'http://localhost:8000/proxy/bybit/v5/market/tickers?category=linear'
 ```
 
 When configured, the server injects `Authorization` headers for upstream
@@ -67,6 +69,8 @@ are ignored.
 - `HYPERLIQUID_AUTHORIZATION` (optional): `Authorization` header value injected for Hyperliquid upstream requests.
 - `POLYMARKET_API_BASE_URL` (default `https://clob.polymarket.com`): upstream base URL for Polymarket proxy.
 - `POLYMARKET_AUTHORIZATION` (optional): `Authorization` header value injected for Polymarket upstream requests.
+- `BYBIT_API_BASE_URL` (default `https://api.bybit.com`): upstream base URL for Bybit proxy.
+- `BYBIT_AUTHORIZATION` (optional): `Authorization` header value injected for Bybit upstream requests.
 
 ## Notifier module
 
