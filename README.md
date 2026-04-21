@@ -41,9 +41,32 @@ docker run --rm -p 8000:8000 tg-channel-to-rss
 curl 'http://localhost:8000/feed/cool_telegram_channel'
 ```
 
+## API proxy endpoints
+
+The service also exposes server-side HTTP proxies for Hyperliquid and
+Polymarket API calls:
+
+- `/proxy/hyperliquid/...` → forwards to `HYPERLIQUID_API_BASE_URL`
+- `/proxy/polymarket/...` → forwards to `POLYMARKET_API_BASE_URL`
+
+Examples:
+
+```bash
+curl 'http://localhost:8000/proxy/hyperliquid/info'
+curl 'http://localhost:8000/proxy/polymarket/markets'
+```
+
+When configured, the server injects `Authorization` headers for upstream
+requests using environment variables. Client-provided `Authorization` headers
+are ignored.
+
 ## Optional environment variables
 - `PORT` (default `8000`): HTTP listening port.
 - `HOST` (default `0.0.0.0`): HTTP bind address.
+- `HYPERLIQUID_API_BASE_URL` (default `https://api.hyperliquid.xyz`): upstream base URL for Hyperliquid proxy.
+- `HYPERLIQUID_AUTHORIZATION` (optional): `Authorization` header value injected for Hyperliquid upstream requests.
+- `POLYMARKET_API_BASE_URL` (default `https://clob.polymarket.com`): upstream base URL for Polymarket proxy.
+- `POLYMARKET_AUTHORIZATION` (optional): `Authorization` header value injected for Polymarket upstream requests.
 
 ## Notifier module
 
