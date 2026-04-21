@@ -14,6 +14,7 @@ import (
 
 	"github.com/Goalt/tg-channel-to-rss/internal/app"
 	"github.com/Goalt/tg-channel-to-rss/internal/notifier"
+	"github.com/Goalt/tg-channel-to-rss/internal/xapi"
 )
 
 func main() {
@@ -43,6 +44,7 @@ func main() {
 	defer stop()
 
 	startNotifier(ctx, svc)
+	startXNotifier(ctx)
 
 	addr := host + ":" + strconv.Itoa(port)
 	log.Printf("Serving tg-channel-to-rss on http://%s", addr)
@@ -79,6 +81,41 @@ func startNotifier(ctx context.Context, fetcher notifier.FeedFetcher) {
 	go func() {
 		if err := n.Run(ctx); err != nil && !errors.Is(err, context.Canceled) {
 			log.Printf("notifier stopped: %v", err)
+		}
+	}()
+}
+
+func startXNotifier(ctx context.Context) {
+	users := splitList(os.Getenv("X_USERS"))
+	webhooks := splitList(os.Getenv("WEBHOOKS"))
+	token := strings.TrimSpace(os.Getenv("X_BEARER_TOKEN"))
+
+	if len(users) == 0 || len(webhooks) == 0 {
+		log.Printf("x.com notifier disabled: set X_USERS and WEBHOOKS to enable")
+		return
+	}
+	if token == "" {
+		log.Printf("x.com notifier disabled: set X_BEARER_TOKEN")
+		return
+	}
+
+	interval, err := time.ParseDuration(envOrDefault("X_POLL_INTERVAL", "5m"))
+	if err != nil {
+		log.Fatalf("invalid X_POLL_INTERVAL: %v", err)
+	}
+
+	fetcher := xapi.NewService(token, nil)
+	n := notifier.New(notifier.Config{
+		Channels:    users,
+		Webhooks:    webhooks,
+		Interval:    interval,
+		HTTPTimeout: 30 * time.Second,
+	}, fetcher, nil, nil)
+
+	log.Printf("x.com notifier: polling %d user(s) every %s, dispatching to %d webhook(s)", len(users), interval, len(webhooks))
+	go func() {
+		if err := n.Run(ctx); err != nil && !errors.Is(err, context.Canceled) {
+			log.Printf("x.com notifier stopped: %v", err)
 		}
 	}()
 }

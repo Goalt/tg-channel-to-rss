@@ -66,6 +66,27 @@ go run ./cmd/server
 - `WEBHOOKS` (optional): comma-separated list of webhook URLs that will receive new posts. Required to enable the notifier.
 - `POLL_INTERVAL` (optional, default `5m`): polling interval as a Go duration (e.g. `30s`, `10m`, `1h`).
 
+## x.com notifier module
+
+The same webhook payload can also be produced from x.com posts using the
+official x.com API. This notifier runs in parallel with the Telegram notifier
+when configured.
+
+### Run with x.com notifier enabled
+```bash
+X_USERS=jack,github \
+X_BEARER_TOKEN=your_x_api_bearer_token \
+WEBHOOKS=https://example.com/hook1,https://example.com/hook2 \
+X_POLL_INTERVAL=5m \
+go run ./cmd/server
+```
+
+### Environment variables
+- `X_USERS` (optional): comma-separated list of x.com usernames to poll.
+- `X_BEARER_TOKEN` (required when `X_USERS` is set): x.com API bearer token.
+- `WEBHOOKS` (required): comma-separated webhook URLs (shared with Telegram notifier).
+- `X_POLL_INTERVAL` (optional, default `5m`): polling interval as a Go duration.
+
 On startup the notifier performs a seed pass that records currently
 visible posts as "already seen" so subscribers are not flooded with
 historical messages. Each subsequent poll delivers a JSON payload per
