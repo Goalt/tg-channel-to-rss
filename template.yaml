@@ -12,6 +12,11 @@ Resources:
       CodeUri: .
       Handler: tg-channel-to-rss
       Events:
+        FeedLanding:
+          Type: Api
+          Properties:
+            Path: /feed
+            Method: get
         GetChannelAsRss:
           Type: Api
           Properties:

@@ -53,33 +53,7 @@ func main() {
 		log.Fatalf("failed to initialize bybit proxy: %v", err)
 	}
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if matchesProxyRoute(r.URL.Path, "/proxy/hyperliquid") {
-			hyperliquidProxy.ServeHTTP(w, r)
-			return
-		}
-		if matchesProxyRoute(r.URL.Path, "/proxy/polymarket") {
-			polymarketProxy.ServeHTTP(w, r)
-			return
-		}
-		if matchesProxyRoute(r.URL.Path, "/proxy/bybit") {
-			bybitProxy.ServeHTTP(w, r)
-			return
-		}
-
-		if !strings.HasPrefix(r.URL.Path, app.FeedPathPrefix) {
-			http.Error(w, "Not Found", http.StatusNotFound)
-			return
-		}
-
-		channelName := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, app.FeedPathPrefix), "/")
-		status, body, headers := svc.HandleFeedRequest(channelName)
-		for k, v := range headers {
-			w.Header().Set(k, v)
-		}
-		w.WriteHeader(status)
-		_, _ = w.Write([]byte(body))
-	})
+	handler := newServerHandler(svc, hyperliquidProxy, polymarketProxy, bybitProxy)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -179,4 +153,39 @@ func envOrDefault(name, fallback string) string {
 		return fallback
 	}
 	return value
+}
+
+func newServerHandler(svc *app.Service, hyperliquidProxy, polymarketProxy, bybitProxy http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if hyperliquidProxy != nil && matchesProxyRoute(r.URL.Path, "/proxy/hyperliquid") {
+			hyperliquidProxy.ServeHTTP(w, r)
+			return
+		}
+		if polymarketProxy != nil && matchesProxyRoute(r.URL.Path, "/proxy/polymarket") {
+			polymarketProxy.ServeHTTP(w, r)
+			return
+		}
+		if bybitProxy != nil && matchesProxyRoute(r.URL.Path, "/proxy/bybit") {
+			bybitProxy.ServeHTTP(w, r)
+			return
+		}
+
+		if r.URL.Path == strings.TrimSuffix(app.FeedPathPrefix, "/") || r.URL.Path == app.FeedPathPrefix {
+			serveFeedLanding(w, r)
+			return
+		}
+
+		if !strings.HasPrefix(r.URL.Path, app.FeedPathPrefix) {
+			http.Error(w, "Not Found", http.StatusNotFound)
+			return
+		}
+
+		channelName := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, app.FeedPathPrefix), "/")
+		status, body, headers := svc.HandleFeedRequest(channelName)
+		for k, v := range headers {
+			w.Header().Set(k, v)
+		}
+		w.WriteHeader(status)
+		_, _ = w.Write([]byte(body))
+	})
 }

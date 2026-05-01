@@ -65,6 +65,7 @@ are ignored.
 ## Optional environment variables
 - `PORT` (default `8000`): HTTP listening port.
 - `HOST` (default `0.0.0.0`): HTTP bind address.
+- `API_BASE_ENV` (optional): public base URL used by the `/feed` landing page for examples and demo links. When unset, the server derives the base URL from the incoming request.
 - `HYPERLIQUID_API_BASE_URL` (default `https://api.hyperliquid.xyz`): upstream base URL for Hyperliquid proxy.
 - `HYPERLIQUID_AUTHORIZATION` (optional): `Authorization` header value injected for Hyperliquid upstream requests.
 - `POLYMARKET_API_BASE_URL` (default `https://clob.polymarket.com`): upstream base URL for Polymarket proxy.
