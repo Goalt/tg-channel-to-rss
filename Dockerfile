@@ -16,6 +16,7 @@ RUN apt-get update \
 ENV PORT=8000
 WORKDIR /app
 COPY --from=builder /out/tg-channel-to-rss /app/tg-channel-to-rss
+COPY logo.svg /app/logo.svg
 
 EXPOSE 8000
 CMD ["/app/tg-channel-to-rss"]

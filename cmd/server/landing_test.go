@@ -30,11 +30,31 @@ func TestNewServerHandlerServesFeedLanding(t *testing.T) {
 		"Datastar",
 		"http://example.com/feed/telegram",
 		"data-demo-form",
+		"/logo.svg",
+		"/favicon.svg",
 	}
 	for _, check := range checks {
 		if !strings.Contains(body, check) {
 			t.Fatalf("expected landing page to contain %q", check)
 		}
+	}
+}
+
+func TestNewServerHandlerServesLogoSVG(t *testing.T) {
+	handler := newServerHandler(app.NewService(http.DefaultClient), nil, nil, nil)
+	req := httptest.NewRequest(http.MethodGet, "/favicon.svg", nil)
+	rec := httptest.NewRecorder()
+
+	handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("unexpected status: %d", rec.Code)
+	}
+	if got := rec.Header().Get("Content-Type"); !strings.Contains(got, "image/svg+xml") {
+		t.Fatalf("unexpected content type: %q", got)
+	}
+	if body := rec.Body.String(); !strings.Contains(body, "tg-channel-to-rss logo") {
+		t.Fatalf("expected logo svg body, got %q", body)
 	}
 }
 

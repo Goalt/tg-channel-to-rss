@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -23,6 +24,7 @@ var feedLandingTemplate = template.Must(template.New("feed-landing").Parse(`<!DO
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>tg-channel-to-rss API</title>
   <meta name="description" content="Interactive landing page for the /feed API with live examples and a Datastar-powered demo." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <script type="module" src="{{ .DatastarCDNURL }}"></script>
   <style>
     :root {
@@ -115,12 +117,15 @@ var feedLandingTemplate = template.Must(template.New("feed-landing").Parse(`<!DO
       text-transform: uppercase;
     }
 
-    .brand-mark {
-      width: 12px;
-      height: 12px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #f59e0b, #0f766e);
-      box-shadow: 0 0 0 8px rgba(245, 158, 11, 0.12);
+    .brand-logo {
+      width: 50px;
+      height: 50px;
+      display: block;
+      border-radius: 16px;
+      border: 1px solid rgba(15, 118, 110, 0.12);
+      box-shadow: 0 14px 28px rgba(15, 118, 110, 0.12);
+      background: rgba(255, 255, 255, 0.92);
+      padding: 4px;
     }
 
     .hero {
@@ -470,7 +475,7 @@ var feedLandingTemplate = template.Must(template.New("feed-landing").Parse(`<!DO
   <div class="shell">
     <div class="topbar">
       <div class="brand">
-        <span class="brand-mark"></span>
+      <img class="brand-logo" src="/logo.svg" alt="tg-channel-to-rss logo" />
         <span>tg-channel-to-rss</span>
       </div>
       <div>Telegram channel to JSON feed, with a live Datastar demo.</div>
@@ -738,6 +743,21 @@ func serveFeedLanding(w http.ResponseWriter, r *http.Request) {
 	}); err != nil {
 		http.Error(w, "Failed to render landing page", http.StatusInternalServerError)
 	}
+}
+
+func serveLogoSVG(w http.ResponseWriter, r *http.Request) {
+	for _, candidate := range []string{"logo.svg", filepath.Join("..", "..", "logo.svg")} {
+		content, err := os.ReadFile(candidate)
+		if err != nil {
+			continue
+		}
+		w.Header().Set("Cache-Control", "public, max-age=3600")
+		w.Header().Set("Content-Type", "image/svg+xml; charset=UTF-8")
+		_, _ = w.Write(content)
+		return
+	}
+
+	http.NotFound(w, r)
 }
 
 func requestBaseURL(r *http.Request) string {

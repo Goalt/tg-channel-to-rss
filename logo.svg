@@ -1,0 +1,39 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="logo-title logo-desc">
+  <title id="logo-title">tg-channel-to-rss logo</title>
+  <desc id="logo-desc">Minimalistic RSS logo with a rounded square background, teal RSS arcs, and an amber accent dot.</desc>
+  <defs>
+    <linearGradient id="surface" x1="108" y1="96" x2="404" y2="416" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF8EA"/>
+      <stop offset="1" stop-color="#F6E7C8"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="148" y1="364" x2="214" y2="430" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F59E0B"/>
+      <stop offset="1" stop-color="#D97706"/>
+    </linearGradient>
+    <filter id="shadow" x="60" y="60" width="392" height="392" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="18"/>
+      <feGaussianBlur stdDeviation="20"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.0588235 0 0 0 0 0.247059 0 0 0 0 0.223529 0 0 0 0.16 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="116" fill="#F7EEDC"/>
+  <circle cx="398" cy="112" r="58" fill="#14B8A6" fill-opacity="0.12"/>
+  <circle cx="126" cy="398" r="74" fill="#F59E0B" fill-opacity="0.12"/>
+
+  <g filter="url(#shadow)">
+    <rect x="96" y="96" width="320" height="320" rx="92" fill="url(#surface)"/>
+    <rect x="96" y="96" width="320" height="320" rx="92" stroke="#0F766E" stroke-opacity="0.14" stroke-width="4"/>
+  </g>
+
+  <circle cx="176" cy="336" r="30" fill="url(#accent)"/>
+  <path d="M178 242C229.915 242 272 284.085 272 336" stroke="#0F766E" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M178 176C266.366 176 338 247.634 338 336" stroke="#0F766E" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M136 132H274" stroke="#1F1B16" stroke-opacity="0.12" stroke-width="12" stroke-linecap="round"/>
+  <path d="M136 168H240" stroke="#1F1B16" stroke-opacity="0.08" stroke-width="12" stroke-linecap="round"/>
+</svg>

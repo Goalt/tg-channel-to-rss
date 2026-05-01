@@ -157,6 +157,11 @@ func envOrDefault(name, fallback string) string {
 
 func newServerHandler(svc *app.Service, hyperliquidProxy, polymarketProxy, bybitProxy http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/logo.svg" || r.URL.Path == "/favicon.svg" {
+			serveLogoSVG(w, r)
+			return
+		}
+
 		if hyperliquidProxy != nil && matchesProxyRoute(r.URL.Path, "/proxy/hyperliquid") {
 			hyperliquidProxy.ServeHTTP(w, r)
 			return
